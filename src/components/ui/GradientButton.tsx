@@ -5,12 +5,14 @@ import { Button } from '@/components/ui/button';
 
 interface GradientButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
   variant?: 'primary' | 'secondary';
+  size?: 'default' | 'sm' | 'lg' | 'icon';
   children: React.ReactNode;
   className?: string;
 }
 
 const GradientButton = ({
   variant = 'primary',
+  size = 'default',
   children,
   className,
   ...props
@@ -24,6 +26,7 @@ const GradientButton = ({
           : 'bg-gradient-blue hover:shadow-neon-teal text-white',
         className
       )}
+      size={size}
       {...props}
     >
       <span className="relative z-10">{children}</span>

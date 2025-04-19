@@ -1,6 +1,6 @@
 
 import React, { useState } from 'react';
-import { Mic, VolumeUp, BookmarkPlus, Send } from 'lucide-react';
+import { Mic, Volume2, BookmarkPlus, Send } from 'lucide-react';
 import Layout from '@/components/layout/Layout';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
@@ -131,7 +131,7 @@ predictions = model.predict(new_data)
                     size="sm"
                     onClick={() => handleReadAloud(result.explanation)}
                   >
-                    <VolumeUp className="h-4 w-4 mr-2" />
+                    <Volume2 className="h-4 w-4 mr-2" />
                     Read Aloud
                   </Button>
                   <Button 
@@ -159,7 +159,7 @@ predictions = model.predict(new_data)
                     size="sm"
                     onClick={() => handleReadAloud(result.analogy)}
                   >
-                    <VolumeUp className="h-4 w-4 mr-2" />
+                    <Volume2 className="h-4 w-4 mr-2" />
                     Read Aloud
                   </Button>
                 </div>
