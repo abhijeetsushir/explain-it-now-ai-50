@@ -1,12 +1,11 @@
-
 import React, { useState } from 'react';
 import { Mic, Volume2, BookmarkPlus, Send } from 'lucide-react';
 import Layout from '@/components/layout/Layout';
 import { Button } from '@/components/ui/button';
-import { Textarea } from '@/components/ui/textarea';
 import { Input } from '@/components/ui/input';
 import LoadingAnimation from '@/components/common/LoadingAnimation';
 import { useToast } from "@/hooks/use-toast";
+import FeatureSelector, { FeatureToggles } from '@/components/features/FeatureSelector';
 
 const AskPage = () => {
   const [topic, setTopic] = useState('');
@@ -15,8 +14,25 @@ const AskPage = () => {
     explanation: string;
     analogy: string;
     codeSnippet: string;
+    books?: { title: string; link: string }[];
+    videos?: { title: string; url: string }[];
+    chart?: string;
+    difficulty?: 'beginner' | 'intermediate' | 'advanced';
   }>(null);
   const { toast } = useToast();
+  
+  const [features, setFeatures] = useState<FeatureToggles>({
+    booksReference: false,
+    youtubeLinks: false,
+    graphicalView: false,
+    difficultyLevels: false,
+    weekendChallenge: false,
+    quizMode: false,
+  });
+
+  const handleFeatureToggle = (key: keyof FeatureToggles) => {
+    setFeatures(prev => ({ ...prev, [key]: !prev[key] }));
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -30,24 +46,32 @@ const AskPage = () => {
       return;
     }
     
-    // Mock API call
     setIsLoading(true);
     // Simulate API delay
     setTimeout(() => {
-      // Mock response
+      // Mock response with additional data based on selected features
       setResult({
-        explanation: `Here's an explanation of "${topic}": \n\nArtificial Intelligence (AI) is a field of computer science focused on creating systems that can perform tasks that typically require human intelligence. These include problem-solving, recognizing speech, understanding natural language, making decisions, and learning from experience. \n\nModern AI systems use large amounts of data to learn patterns and make predictions or decisions without being explicitly programmed for every possible scenario.`,
-        analogy: `Think of AI like teaching a child: At first, you show them many examples (data) of what cats and dogs look like. Over time, they learn to recognize the patterns themselves, even when seeing new animals they haven't seen before. Similarly, AI systems learn from examples to recognize patterns in data.`,
-        codeSnippet: `# Simple example of machine learning with scikit-learn
-from sklearn.ensemble import RandomForestClassifier
-
-# Create and train a model
-model = RandomForestClassifier() 
-model.fit(training_data, training_labels)
-
-# Make predictions
-predictions = model.predict(new_data)
-`,
+        explanation: `Here's an explanation of "${topic}"...`,
+        analogy: "Think of it like...",
+        codeSnippet: "// Example code...",
+        ...(features.booksReference && {
+          books: [
+            { title: "Essential Guide", link: "https://example.com/book1" },
+            { title: "Advanced Topics", link: "https://example.com/book2" },
+          ]
+        }),
+        ...(features.youtubeLinks && {
+          videos: [
+            { title: "Quick Tutorial", url: "https://youtube.com/watch?v=123" },
+            { title: "Deep Dive", url: "https://youtube.com/watch?v=456" },
+          ]
+        }),
+        ...(features.difficultyLevels && {
+          difficulty: "intermediate"
+        }),
+        ...(features.graphicalView && {
+          chart: "data:image/svg+xml,..." // Mock chart data
+        })
       });
       setIsLoading(false);
     }, 2000);
@@ -82,9 +106,14 @@ predictions = model.predict(new_data)
       <div className="container mx-auto px-4 max-w-4xl">
         <h1 className="text-3xl md:text-4xl font-bold text-center mb-8">Ask Anything</h1>
         
-        {/* Question Input */}
-        <form onSubmit={handleSubmit} className="mb-10">
+        <form onSubmit={handleSubmit} className="mb-6">
           <div className="glass-card p-6">
+            <div className="mb-4">
+              <FeatureSelector 
+                features={features} 
+                onFeatureToggle={handleFeatureToggle} 
+              />
+            </div>
             <div className="flex items-center">
               <Input
                 value={topic}
@@ -148,6 +177,68 @@ predictions = model.predict(new_data)
                 <p className="whitespace-pre-line">{result.explanation}</p>
               </div>
             </div>
+            
+            {/* Books References */}
+            {features.booksReference && result.books && (
+              <div className="glass-card p-6">
+                <div className="flex justify-between items-center mb-4">
+                  <h2 className="text-xl font-bold">Recommended Books</h2>
+                </div>
+                <div className="space-y-4">
+                  {result.books.map((book, index) => (
+                    <a
+                      key={index}
+                      href={book.link}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="block p-4 rounded-lg bg-background/50 hover:bg-background/80 transition-colors"
+                    >
+                      <BookOpen className="h-5 w-5 mb-2 text-primary" />
+                      <h3 className="font-medium">{book.title}</h3>
+                    </a>
+                  ))}
+                </div>
+              </div>
+            )}
+            
+            {/* YouTube Videos */}
+            {features.youtubeLinks && result.videos && (
+              <div className="glass-card p-6">
+                <div className="flex justify-between items-center mb-4">
+                  <h2 className="text-xl font-bold">Related Videos</h2>
+                </div>
+                <div className="space-y-4">
+                  {result.videos.map((video, index) => (
+                    <a
+                      key={index}
+                      href={video.url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="block p-4 rounded-lg bg-background/50 hover:bg-background/80 transition-colors"
+                    >
+                      <Youtube className="h-5 w-5 mb-2 text-red-500" />
+                      <h3 className="font-medium">{video.title}</h3>
+                    </a>
+                  ))}
+                </div>
+              </div>
+            )}
+            
+            {/* Difficulty Level */}
+            {features.difficultyLevels && result.difficulty && (
+              <div className="glass-card p-6">
+                <div className="flex items-center justify-between">
+                  <h2 className="text-xl font-bold">Difficulty Level</h2>
+                  <span className={`px-3 py-1 rounded-full text-sm font-medium ${
+                    result.difficulty === 'beginner' ? 'bg-green-500/20 text-green-500' :
+                    result.difficulty === 'intermediate' ? 'bg-yellow-500/20 text-yellow-500' :
+                    'bg-red-500/20 text-red-500'
+                  }`}>
+                    {result.difficulty.charAt(0).toUpperCase() + result.difficulty.slice(1)}
+                  </span>
+                </div>
+              </div>
+            )}
             
             {/* Analogy Card */}
             <div className="glass-card p-6">
