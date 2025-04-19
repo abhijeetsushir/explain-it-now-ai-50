@@ -4,6 +4,8 @@ import Layout from '@/components/layout/Layout';
 import { Button } from '@/components/ui/button';
 import GradientButton from '@/components/ui/GradientButton';
 import { Progress } from '@/components/ui/progress';
+import GenreSelector from '@/components/quiz/GenreSelector';
+import { QuizGenre } from '@/types/quiz';
 
 // Mock quiz questions
 const quizQuestions = [
@@ -65,16 +67,19 @@ const getFeedback = (score: number, total: number) => {
 };
 
 const QuizPage = () => {
+  const [selectedGenre, setSelectedGenre] = useState<QuizGenre | null>(null);
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
   const [selectedOption, setSelectedOption] = useState<number | null>(null);
   const [isAnswered, setIsAnswered] = useState(false);
   const [score, setScore] = useState(0);
-  const [timeLeft, setTimeLeft] = useState(60); // 60 seconds per quiz
+  const [timeLeft, setTimeLeft] = useState(60);
   const [quizComplete, setQuizComplete] = useState(false);
   const [showFeedback, setShowFeedback] = useState(false);
   
-  // Shuffle questions and their options
+  // Shuffle questions and their options when genre is selected
   const shuffledQuestions = useMemo(() => {
+    if (!selectedGenre) return [];
+    
     const shuffleArray = (array: any[]) => {
       for (let i = array.length - 1; i > 0; i--) {
         const j = Math.floor(Math.random() * (i + 1));
@@ -83,16 +88,28 @@ const QuizPage = () => {
       return array;
     };
 
-    return quizQuestions.map(question => ({
+    return shuffleArray([...selectedGenre.questions]).map(question => ({
       ...question,
       options: shuffleArray([...question.options]),
-      correctAnswer: question.correctAnswer // Keep track of the correct answer
+      correctAnswer: question.correctAnswer
     }));
-  }, []);
+  }, [selectedGenre]);
 
   const currentQuestion = shuffledQuestions[currentQuestionIndex];
   const totalQuestions = shuffledQuestions.length;
   
+  // Reset quiz when genre changes
+  const handleGenreSelect = (genre: QuizGenre) => {
+    setSelectedGenre(genre);
+    setCurrentQuestionIndex(0);
+    setSelectedOption(null);
+    setIsAnswered(false);
+    setScore(0);
+    setTimeLeft(60);
+    setQuizComplete(false);
+    setShowFeedback(false);
+  };
+
   // Timer
   useEffect(() => {
     if (quizComplete) return;
@@ -151,6 +168,7 @@ const QuizPage = () => {
   
   // Restart quiz
   const restartQuiz = () => {
+    setSelectedGenre(null);
     setCurrentQuestionIndex(0);
     setSelectedOption(null);
     setIsAnswered(false);
@@ -163,7 +181,15 @@ const QuizPage = () => {
     <Layout>
       <div className="container mx-auto px-4">
         <div className="max-w-3xl mx-auto">
-          {!quizComplete ? (
+          {!selectedGenre ? (
+            <>
+              <div className="text-center mb-8">
+                <h1 className="text-3xl font-bold mb-2">Choose Your Quiz Genre</h1>
+                <p className="text-muted-foreground">Select a category to start the quiz</p>
+              </div>
+              <GenreSelector onGenreSelect={handleGenreSelect} />
+            </>
+          ) : !quizComplete ? (
             <>
               {/* Quiz header with progress and timer */}
               <div className="flex justify-between items-center mb-8">
