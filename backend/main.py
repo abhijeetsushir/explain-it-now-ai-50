@@ -1,7 +1,7 @@
 
+from groq import Groq
 import os
 from dotenv import load_dotenv
-from groq import Groq
 
 # Load environment variables
 load_dotenv()
@@ -13,7 +13,7 @@ if not api_key:
 
 client = Groq(api_key=api_key)
 
-def ask_groq(prompt, model="llama-3-70b-8192", temperature=0.7, max_tokens=1000):
+def ask_groq(prompt, model="llama-3.3-70b-versatile", temperature=0.7, max_tokens=1000):
     """
     Send a prompt to Groq API 
     
@@ -55,10 +55,3 @@ def ask_groq(prompt, model="llama-3-70b-8192", temperature=0.7, max_tokens=1000)
         error_message = f"Error in Groq API call: {str(e)}"
         print(error_message)
         return error_message
-
-# Optional: Test function if script is run directly
-if __name__ == "__main__":
-    test_prompt = "Explain quantum computing in simple terms"
-    response = ask_groq(test_prompt)
-    print("Groq API Response:")
-    print(response)

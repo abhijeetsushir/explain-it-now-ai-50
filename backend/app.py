@@ -45,8 +45,8 @@ async def chat(request: ChatRequest):
             
         return {
             'explanation': response,
-            'analogy': 'Analogy would be generated here',
-            'codeSnippet': 'Code snippet would be generated here',
+            'analogy': 'Coming soon...',
+            'codeSnippet': 'Coming soon...',
             'difficulty': 'intermediate'
         }
     except Exception as e:
@@ -66,4 +66,3 @@ if __name__ == '__main__':
     print("Starting FastAPI server on http://localhost:5000")
     print(f"GROQ API key configured: {bool(api_key)}")
     uvicorn.run(app, host="0.0.0.0", port=5000)
-
