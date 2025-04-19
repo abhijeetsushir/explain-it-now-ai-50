@@ -6,7 +6,25 @@ import GradientButton from '@/components/ui/GradientButton';
 import { Progress } from '@/components/ui/progress';
 import QuestionStore from '@/utils/questionStore';
 
+// Add the missing getFeedback function
+const getFeedback = (score: number, total: number) => {
+  const percentage = (score / total) * 100;
+  
+  if (percentage >= 90) {
+    return "Outstanding! You're a master of this subject!";
+  } else if (percentage >= 75) {
+    return "Great job! You really know your stuff!";
+  } else if (percentage >= 60) {
+    return "Good work! You're on the right track.";
+  } else if (percentage >= 40) {
+    return "Not bad! Keep studying and you'll improve.";
+  } else {
+    return "Keep practicing! Everyone starts somewhere.";
+  }
+};
+
 const QuizPage = () => {
+  
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
   const [selectedOption, setSelectedOption] = useState<number | null>(null);
   const [isAnswered, setIsAnswered] = useState(false);

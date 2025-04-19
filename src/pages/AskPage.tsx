@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { Mic, Volume2, BookmarkPlus, Send, BookOpen, Youtube } from 'lucide-react';
 import Layout from '@/components/layout/Layout';
@@ -67,7 +68,7 @@ const AskPage = () => {
           ]
         }),
         ...(features.difficultyLevels && {
-          difficulty: "intermediate"
+          difficulty: "intermediate" as 'beginner' | 'intermediate' | 'advanced'
         }),
         ...(features.graphicalView && {
           chart: "data:image/svg+xml,..." // Mock chart data
