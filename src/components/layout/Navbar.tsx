@@ -40,6 +40,7 @@ const Navbar = () => {
   const navLinks = [
     { name: 'Ask', path: '/ask' },
     { name: 'Library', path: '/library' },
+    { name: 'Books', path: '/books' },
     { name: 'Flashcards', path: '/flashcards' },
     { name: 'Quiz', path: '/quiz' },
     { name: 'Collab', path: '/collab' },
