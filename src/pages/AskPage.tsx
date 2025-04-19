@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Mic, Volume2, BookmarkPlus, Send, BookOpen, Youtube } from 'lucide-react';
 import Layout from '@/components/layout/Layout';
@@ -49,38 +48,56 @@ const AskPage = () => {
     }
     
     setIsLoading(true);
-    // Simulate API delay
-    setTimeout(() => {
-      const mockResult = {
-        explanation: `Here's an explanation of "${topic}"...`,
-        analogy: "Think of it like...",
-        codeSnippet: "// Example code...",
-        ...(features.booksReference && {
+    try {
+      const response = await fetch('http://localhost:5000/api/chat', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ message: topic }),
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to get response from server');
+      }
+
+      const data = await response.json();
+      
+      // Save the question and explanation to QuestionStore
+      QuestionStore.saveQuestion(topic, data.explanation);
+      
+      setResult({
+        explanation: data.explanation,
+        analogy: data.analogy,
+        codeSnippet: data.codeSnippet,
+        ...(features.booksReference ? {
           books: [
             { title: "Essential Guide", link: "https://example.com/book1" },
             { title: "Advanced Topics", link: "https://example.com/book2" },
           ]
-        }),
-        ...(features.youtubeLinks && {
+        } : {}),
+        ...(features.youtubeLinks ? {
           videos: [
             { title: "Quick Tutorial", url: "https://youtube.com/watch?v=123" },
             { title: "Deep Dive", url: "https://youtube.com/watch?v=456" },
           ]
-        }),
-        ...(features.difficultyLevels && {
+        } : {}),
+        ...(features.difficultyLevels ? {
           difficulty: "intermediate" as 'beginner' | 'intermediate' | 'advanced'
-        }),
-        ...(features.graphicalView && {
-          chart: "data:image/svg+xml,..." // Mock chart data
-        })
-      };
-
-      // Save the question and explanation to QuestionStore
-      QuestionStore.saveQuestion(topic, mockResult.explanation);
-      
-      setResult(mockResult);
+        } : {}),
+        ...(features.graphicalView ? {
+          chart: "data:image/svg+xml,..."
+        } : {})
+      });
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to get response from the server. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
       setIsLoading(false);
-    }, 2000);
+    }
   };
   
   const handleVoiceInput = () => {
