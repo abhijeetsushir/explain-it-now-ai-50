@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+
+import React, { useState, useEffect } from 'react';
 import { Mic, Volume2, BookmarkPlus, Send, BookOpen, Youtube } from 'lucide-react';
 import Layout from '@/components/layout/Layout';
 import { Button } from '@/components/ui/button';
@@ -11,10 +12,11 @@ import QuestionStore from '@/utils/questionStore';
 const AskPage = () => {
   const [topic, setTopic] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const [backendStatus, setBackendStatus] = useState<'checking' | 'online' | 'offline'>('checking');
   const [result, setResult] = useState<null | {
     explanation: string;
-    analogy: string;
-    codeSnippet: string;
+    analogy?: string;
+    codeSnippet?: string;
     books?: { title: string; link: string }[];
     videos?: { title: string; url: string }[];
     chart?: string;
@@ -30,6 +32,40 @@ const AskPage = () => {
     weekendChallenge: false,
     quizMode: false,
   });
+
+  // Check backend health on component mount
+  useEffect(() => {
+    const checkBackendHealth = async () => {
+      try {
+        const response = await fetch('http://localhost:5000/api/health');
+        if (response.ok) {
+          const data = await response.json();
+          if (data.api_key_configured) {
+            setBackendStatus('online');
+          } else {
+            toast({
+              title: "Backend API Key Issue",
+              description: "Backend is online but the GROQ API key is not configured correctly.",
+              variant: "destructive",
+            });
+            setBackendStatus('offline');
+          }
+        } else {
+          setBackendStatus('offline');
+        }
+      } catch (error) {
+        console.error("Backend health check failed:", error);
+        setBackendStatus('offline');
+        toast({
+          title: "Backend Offline",
+          description: "The backend server is not responding. Make sure it's running on port 5000.",
+          variant: "destructive",
+        });
+      }
+    };
+    
+    checkBackendHealth();
+  }, [toast]);
 
   const handleFeatureToggle = (key: keyof FeatureToggles) => {
     setFeatures(prev => ({ ...prev, [key]: !prev[key] }));
@@ -47,8 +83,18 @@ const AskPage = () => {
       return;
     }
     
+    if (backendStatus === 'offline') {
+      toast({
+        title: "Backend Offline",
+        description: "Cannot send your question because the backend is offline. Please make sure the backend server is running.",
+        variant: "destructive",
+      });
+      return;
+    }
+    
     setIsLoading(true);
     try {
+      console.log("Sending request to backend:", topic);
       const response = await fetch('http://localhost:5000/api/chat', {
         method: 'POST',
         headers: {
@@ -58,18 +104,21 @@ const AskPage = () => {
       });
 
       if (!response.ok) {
-        throw new Error('Failed to get response from server');
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'Failed to get response from server');
       }
 
       const data = await response.json();
+      console.log("Received response:", data);
       
       // Save the question and explanation to QuestionStore
       QuestionStore.saveQuestion(topic, data.explanation);
       
+      // Update result with data from API
       setResult({
         explanation: data.explanation,
-        analogy: data.analogy,
-        codeSnippet: data.codeSnippet,
+        analogy: data.analogy || "No analogy was generated for this topic.",
+        codeSnippet: data.codeSnippet || "// No code example was generated for this topic.",
         ...(features.booksReference ? {
           books: [
             { title: "Essential Guide", link: "https://example.com/book1" },
@@ -83,16 +132,22 @@ const AskPage = () => {
           ]
         } : {}),
         ...(features.difficultyLevels ? {
-          difficulty: "intermediate" as 'beginner' | 'intermediate' | 'advanced'
+          difficulty: data.difficulty || "intermediate" as 'beginner' | 'intermediate' | 'advanced'
         } : {}),
         ...(features.graphicalView ? {
           chart: "data:image/svg+xml,..."
         } : {})
       });
+      
+      toast({
+        title: "Response received",
+        description: "Your question has been answered!",
+      });
     } catch (error) {
+      console.error("API call error:", error);
       toast({
         title: "Error",
-        description: "Failed to get response from the server. Please try again.",
+        description: error instanceof Error ? error.message : "Failed to get response from the server. Please try again.",
         variant: "destructive",
       });
     } finally {
@@ -129,6 +184,12 @@ const AskPage = () => {
       <div className="container mx-auto px-4 max-w-4xl">
         <h1 className="text-3xl md:text-4xl font-bold text-center mb-8">Ask Anything</h1>
         
+        {backendStatus === 'offline' && (
+          <div className="bg-yellow-500/20 text-yellow-700 dark:text-yellow-300 p-4 mb-6 rounded-lg">
+            <p className="font-medium">Backend server is offline. Please make sure it's running on http://localhost:5000</p>
+          </div>
+        )}
+        
         <form onSubmit={handleSubmit} className="mb-6">
           <div className="glass-card p-6">
             <div className="mb-4">
@@ -155,9 +216,14 @@ const AskPage = () => {
               <Button 
                 type="submit"
                 className="ml-2 bg-primary hover:bg-primary/90 text-white"
+                disabled={isLoading || backendStatus === 'offline'}
               >
-                <Send className="h-4 w-4 mr-2" />
-                Explain
+                {isLoading ? 'Thinking...' : (
+                  <>
+                    <Send className="h-4 w-4 mr-2" />
+                    Explain
+                  </>
+                )}
               </Button>
             </div>
           </div>
@@ -263,37 +329,40 @@ const AskPage = () => {
               </div>
             )}
             
-            {/* Analogy Card */}
-            <div className="glass-card p-6">
-              <div className="flex justify-between items-center mb-4">
-                <h2 className="text-xl font-bold">Real-World Analogy</h2>
-                <div className="flex space-x-2">
-                  <Button 
-                    variant="ghost" 
-                    size="sm"
-                    onClick={() => handleReadAloud(result.analogy)}
-                  >
-                    <Volume2 className="h-4 w-4 mr-2" />
-                    Read Aloud
-                  </Button>
+            {/* Only show these if they exist in the response */}
+            {result.analogy && (
+              <div className="glass-card p-6">
+                <div className="flex justify-between items-center mb-4">
+                  <h2 className="text-xl font-bold">Real-World Analogy</h2>
+                  <div className="flex space-x-2">
+                    <Button 
+                      variant="ghost" 
+                      size="sm"
+                      onClick={() => handleReadAloud(result.analogy || "")}
+                    >
+                      <Volume2 className="h-4 w-4 mr-2" />
+                      Read Aloud
+                    </Button>
+                  </div>
+                </div>
+                <div className="prose dark:prose-invert max-w-none">
+                  <p>{result.analogy}</p>
                 </div>
               </div>
-              <div className="prose dark:prose-invert max-w-none">
-                <p>{result.analogy}</p>
-              </div>
-            </div>
+            )}
             
-            {/* Code Snippet Card */}
-            <div className="glass-card p-6">
-              <div className="flex justify-between items-center mb-4">
-                <h2 className="text-xl font-bold">Code Example</h2>
+            {result.codeSnippet && (
+              <div className="glass-card p-6">
+                <div className="flex justify-between items-center mb-4">
+                  <h2 className="text-xl font-bold">Code Example</h2>
+                </div>
+                <div className="bg-foreground/5 rounded-lg p-4 overflow-x-auto">
+                  <pre className="text-sm font-mono">
+                    <code>{result.codeSnippet}</code>
+                  </pre>
+                </div>
               </div>
-              <div className="bg-foreground/5 rounded-lg p-4 overflow-x-auto">
-                <pre className="text-sm font-mono">
-                  <code>{result.codeSnippet}</code>
-                </pre>
-              </div>
-            </div>
+            )}
           </div>
         )}
         
