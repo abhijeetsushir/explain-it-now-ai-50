@@ -1,6 +1,7 @@
 
-from flask import Flask, request, jsonify
-from flask_cors import CORS
+from fastapi import FastAPI, HTTPException
+from fastapi.middleware.cors import CORSMiddleware
+from pydantic import BaseModel
 from main import ask_groq
 import os
 from dotenv import load_dotenv
@@ -13,48 +14,56 @@ api_key = os.getenv("GROQ_API_KEY")
 if not api_key:
     print("WARNING: GROQ_API_KEY not found in environment variables")
 
-app = Flask(__name__)
-CORS(app)  # Enable CORS for all routes
+app = FastAPI()
 
-@app.route('/api/chat', methods=['POST'])
-def chat():
-    data = request.json
-    user_message = data.get('message', '')
-    
-    if not user_message:
-        return jsonify({'error': 'No message provided'}), 400
+# Configure CORS
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],  # In production, replace with specific origins
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
+class ChatRequest(BaseModel):
+    message: str
+
+@app.post("/api/chat")
+async def chat(request: ChatRequest):
+    if not request.message:
+        raise HTTPException(status_code=400, detail="No message provided")
     
     if not api_key:
-        return jsonify({'error': 'GROQ API key not configured on the server'}), 500
+        raise HTTPException(status_code=500, detail="GROQ API key not configured on the server")
     
     try:
-        # Use the updated ask_groq function from main.py
-        response = ask_groq(user_message)
+        response = ask_groq(request.message)
         
         # If the response is an error message from our function
         if response.startswith("Error in Groq API call:"):
-            return jsonify({'error': response}), 500
+            raise HTTPException(status_code=500, detail=response)
             
-        return jsonify({
+        return {
             'explanation': response,
-            # For now, we'll hardcode these values since they're not coming from Groq
             'analogy': 'Analogy would be generated here',
             'codeSnippet': 'Code snippet would be generated here',
             'difficulty': 'intermediate'
-        })
+        }
     except Exception as e:
         print(f"Exception in /api/chat endpoint: {str(e)}")
-        return jsonify({'error': str(e)}), 500
+        raise HTTPException(status_code=500, detail=str(e))
 
-@app.route('/api/health', methods=['GET'])
-def health_check():
+@app.get("/api/health")
+async def health_check():
     """Health check endpoint to verify the backend is running"""
-    return jsonify({
+    return {
         'status': 'online',
         'api_key_configured': bool(api_key)
-    })
+    }
 
 if __name__ == '__main__':
-    print("Starting Flask server on http://localhost:5000")
+    import uvicorn
+    print("Starting FastAPI server on http://localhost:5000")
     print(f"GROQ API key configured: {bool(api_key)}")
-    app.run(debug=True, port=5000, host='0.0.0.0')
+    uvicorn.run(app, host="0.0.0.0", port=5000)
+
