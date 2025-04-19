@@ -1,7 +1,6 @@
-
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { Menu, X, Moon, Sun } from 'lucide-react';
+import { Menu, X, Moon, Sun, Brain } from 'lucide-react';
 import { useToast } from "@/hooks/use-toast";
 
 const Navbar = () => {
@@ -52,6 +51,7 @@ const Navbar = () => {
     <nav className="py-5 fixed w-full top-0 z-50 backdrop-blur-md bg-background/80 border-b border-border">
       <div className="container mx-auto px-4 md:px-8 flex justify-between items-center">
         <Link to="/" className="text-2xl font-bold flex items-center gap-2">
+          <Brain className="w-8 h-8 text-primary animate-pulse" />
           <span className="inline-block w-8 h-8 bg-gradient-candy rounded-lg"></span>
           <span className="bg-gradient-to-r from-purple to-pink-dark bg-clip-text text-transparent">
             ExplainMe

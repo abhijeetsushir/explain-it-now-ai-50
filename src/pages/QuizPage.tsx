@@ -1,6 +1,5 @@
-
-import React, { useState, useEffect } from 'react';
-import { Clock, Trophy, Award, RefreshCw } from 'lucide-react';
+import React, { useState, useEffect, useMemo } from 'react';
+import { Clock, Trophy, Award, RefreshCw, Shuffle } from 'lucide-react';
 import Layout from '@/components/layout/Layout';
 import { Button } from '@/components/ui/button';
 import GradientButton from '@/components/ui/GradientButton';
@@ -74,8 +73,25 @@ const QuizPage = () => {
   const [quizComplete, setQuizComplete] = useState(false);
   const [showFeedback, setShowFeedback] = useState(false);
   
-  const currentQuestion = quizQuestions[currentQuestionIndex];
-  const totalQuestions = quizQuestions.length;
+  // Shuffle questions and their options
+  const shuffledQuestions = useMemo(() => {
+    const shuffleArray = (array: any[]) => {
+      for (let i = array.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [array[i], array[j]] = [array[j], array[i]];
+      }
+      return array;
+    };
+
+    return quizQuestions.map(question => ({
+      ...question,
+      options: shuffleArray([...question.options]),
+      correctAnswer: question.correctAnswer // Keep track of the correct answer
+    }));
+  }, []);
+
+  const currentQuestion = shuffledQuestions[currentQuestionIndex];
+  const totalQuestions = shuffledQuestions.length;
   
   // Timer
   useEffect(() => {
