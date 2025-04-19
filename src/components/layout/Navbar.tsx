@@ -8,7 +8,6 @@ const Navbar = () => {
   const [isDark, setIsDark] = useState(false);
   const { toast } = useToast();
   
-  // Check for dark mode preference
   useEffect(() => {
     const isDarkMode = localStorage.getItem('theme') === 'dark' || 
       (!localStorage.getItem('theme') && window.matchMedia('(prefers-color-scheme: dark)').matches);
@@ -19,7 +18,6 @@ const Navbar = () => {
     }
   }, []);
   
-  // Toggle dark mode
   const toggleDarkMode = () => {
     setIsDark(!isDark);
     if (isDark) {
@@ -52,7 +50,6 @@ const Navbar = () => {
       <div className="container mx-auto px-4 md:px-8 flex justify-between items-center">
         <Link to="/" className="text-2xl font-bold flex items-center gap-2">
           <Brain className="w-8 h-8 text-primary animate-pulse" />
-          <span className="inline-block w-8 h-8 bg-gradient-candy rounded-lg"></span>
           <span className="bg-gradient-to-r from-purple to-pink-dark bg-clip-text text-transparent">
             ExplainMe
           </span>
@@ -87,7 +84,6 @@ const Navbar = () => {
           </Link>
         </div>
         
-        {/* Mobile menu button */}
         <button 
           onClick={() => setIsMenuOpen(!isMenuOpen)}
           className="md:hidden p-2"
@@ -97,7 +93,6 @@ const Navbar = () => {
         </button>
       </div>
       
-      {/* Mobile dropdown menu */}
       {isMenuOpen && (
         <div className="md:hidden absolute w-full bg-background shadow-lg border-b border-border animate-slide-up">
           <div className="container mx-auto px-4 py-4 flex flex-col gap-4">
