@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Mic, Volume2, BookmarkPlus, Send, BookOpen, Youtube } from 'lucide-react';
 import Layout from '@/components/layout/Layout';
@@ -7,6 +6,7 @@ import { Input } from '@/components/ui/input';
 import LoadingAnimation from '@/components/common/LoadingAnimation';
 import { useToast } from "@/hooks/use-toast";
 import FeatureSelector, { FeatureToggles } from '@/components/features/FeatureSelector';
+import QuestionStore from '@/utils/questionStore';
 
 const AskPage = () => {
   const [topic, setTopic] = useState('');
@@ -50,8 +50,7 @@ const AskPage = () => {
     setIsLoading(true);
     // Simulate API delay
     setTimeout(() => {
-      // Mock response with additional data based on selected features
-      setResult({
+      const mockResult = {
         explanation: `Here's an explanation of "${topic}"...`,
         analogy: "Think of it like...",
         codeSnippet: "// Example code...",
@@ -73,7 +72,12 @@ const AskPage = () => {
         ...(features.graphicalView && {
           chart: "data:image/svg+xml,..." // Mock chart data
         })
-      });
+      };
+
+      // Save the question and explanation to QuestionStore
+      QuestionStore.saveQuestion(topic, mockResult.explanation);
+      
+      setResult(mockResult);
       setIsLoading(false);
     }, 2000);
   };

@@ -1,73 +1,12 @@
 import React, { useState, useEffect, useMemo } from 'react';
-import { Clock, Trophy, Award, RefreshCw, Shuffle } from 'lucide-react';
+import { Clock, Trophy, Award, RefreshCw } from 'lucide-react';
 import Layout from '@/components/layout/Layout';
 import { Button } from '@/components/ui/button';
 import GradientButton from '@/components/ui/GradientButton';
 import { Progress } from '@/components/ui/progress';
-import GenreSelector from '@/components/quiz/GenreSelector';
-import { QuizGenre } from '@/types/quiz';
-
-// Mock quiz questions
-const quizQuestions = [
-  {
-    id: 1,
-    question: "Which hook is used for side effects in React?",
-    options: ["useState", "useEffect", "useContext", "useReducer"],
-    correctAnswer: 1,
-  },
-  {
-    id: 2,
-    question: "What does the Virtual DOM do in React?",
-    options: [
-      "Directly manipulates the browser's DOM",
-      "Creates a copy of the browser's DOM in memory",
-      "Eliminates the need for a DOM altogether",
-      "Slows down rendering for precision",
-    ],
-    correctAnswer: 1,
-  },
-  {
-    id: 3,
-    question: "Which of these is NOT a React Hook?",
-    options: ["useRef", "useFetch", "useContext", "useReducer"],
-    correctAnswer: 1,
-  },
-  {
-    id: 4,
-    question: "How do you update state in React?",
-    options: [
-      "Directly modify the state object",
-      "Using setState or a setter from useState",
-      "By returning a new component",
-      "Using the this.state property",
-    ],
-    correctAnswer: 1,
-  },
-  {
-    id: 5,
-    question: "What is the purpose of keys in React lists?",
-    options: [
-      "To style list items differently",
-      "To help React identify which items have changed, added, or removed",
-      "To provide accessibility features",
-      "To encrypt the list data",
-    ],
-    correctAnswer: 1,
-  },
-];
-
-// Feedback messages based on score
-const getFeedback = (score: number, total: number) => {
-  const percentage = (score / total) * 100;
-  if (percentage >= 90) return "Amazing! You're a genius! 🎉";
-  if (percentage >= 70) return "Great job! Almost perfect! 🌟";
-  if (percentage >= 50) return "Good effort! Keep learning! 👍";
-  if (percentage >= 30) return "Nice try! Review and try again! 📚";
-  return "Don't give up! Time to study more! 💪";
-};
+import QuestionStore from '@/utils/questionStore';
 
 const QuizPage = () => {
-  const [selectedGenre, setSelectedGenre] = useState<QuizGenre | null>(null);
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
   const [selectedOption, setSelectedOption] = useState<number | null>(null);
   const [isAnswered, setIsAnswered] = useState(false);
@@ -76,40 +15,11 @@ const QuizPage = () => {
   const [quizComplete, setQuizComplete] = useState(false);
   const [showFeedback, setShowFeedback] = useState(false);
   
-  // Shuffle questions and their options when genre is selected
-  const shuffledQuestions = useMemo(() => {
-    if (!selectedGenre) return [];
-    
-    const shuffleArray = (array: any[]) => {
-      for (let i = array.length - 1; i > 0; i--) {
-        const j = Math.floor(Math.random() * (i + 1));
-        [array[i], array[j]] = [array[j], array[i]];
-      }
-      return array;
-    };
-
-    return shuffleArray([...selectedGenre.questions]).map(question => ({
-      ...question,
-      options: shuffleArray([...question.options]),
-      correctAnswer: question.correctAnswer
-    }));
-  }, [selectedGenre]);
-
-  const currentQuestion = shuffledQuestions[currentQuestionIndex];
-  const totalQuestions = shuffledQuestions.length;
+  // Get questions from the QuestionStore
+  const questions = useMemo(() => QuestionStore.generateQuizQuestions(), []);
+  const currentQuestion = questions[currentQuestionIndex];
+  const totalQuestions = questions.length;
   
-  // Reset quiz when genre changes
-  const handleGenreSelect = (genre: QuizGenre) => {
-    setSelectedGenre(genre);
-    setCurrentQuestionIndex(0);
-    setSelectedOption(null);
-    setIsAnswered(false);
-    setScore(0);
-    setTimeLeft(60);
-    setQuizComplete(false);
-    setShowFeedback(false);
-  };
-
   // Timer
   useEffect(() => {
     if (quizComplete) return;
@@ -166,30 +76,34 @@ const QuizPage = () => {
     setQuizComplete(true);
   };
   
-  // Restart quiz
-  const restartQuiz = () => {
-    setSelectedGenre(null);
-    setCurrentQuestionIndex(0);
-    setSelectedOption(null);
-    setIsAnswered(false);
-    setScore(0);
-    setTimeLeft(60);
-    setQuizComplete(false);
+  const startNewQuiz = () => {
+    window.location.reload(); // Reload to get fresh questions
   };
   
+  if (questions.length === 0) {
+    return (
+      <Layout>
+        <div className="container mx-auto px-4 text-center py-12">
+          <div className="glass-card p-8 max-w-md mx-auto">
+            <Trophy className="w-12 h-12 mx-auto mb-4 text-primary" />
+            <h1 className="text-2xl font-bold mb-4">No Questions Available</h1>
+            <p className="text-foreground/70 mb-6">
+              Try asking some questions in the Ask tab first. Your questions will be used to generate a personalized quiz!
+            </p>
+            <Button onClick={() => window.location.href = '/ask'}>
+              Go to Ask Page
+            </Button>
+          </div>
+        </div>
+      </Layout>
+    );
+  }
+
   return (
     <Layout>
       <div className="container mx-auto px-4">
         <div className="max-w-3xl mx-auto">
-          {!selectedGenre ? (
-            <>
-              <div className="text-center mb-8">
-                <h1 className="text-3xl font-bold mb-2">Choose Your Quiz Genre</h1>
-                <p className="text-muted-foreground">Select a category to start the quiz</p>
-              </div>
-              <GenreSelector onGenreSelect={handleGenreSelect} />
-            </>
-          ) : !quizComplete ? (
+          {!quizComplete ? (
             <>
               {/* Quiz header with progress and timer */}
               <div className="flex justify-between items-center mb-8">
@@ -280,7 +194,7 @@ const QuizPage = () => {
                 </div>
               </div>
               
-              <GradientButton onClick={restartQuiz} className="inline-flex items-center">
+              <GradientButton onClick={startNewQuiz} className="inline-flex items-center">
                 <RefreshCw className="h-4 w-4 mr-2" />
                 Try Again
               </GradientButton>
