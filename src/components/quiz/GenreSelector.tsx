@@ -1,98 +1,83 @@
 import React from 'react';
-import { Book, Brain, Music, Film } from 'lucide-react';
+import { Brain, Calculator, Globe, Atom, BookOpen, Pencil, FlaskConical, Scale } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { QuizGenre } from '@/types/quiz';
 
 const quizGenres: QuizGenre[] = [
   {
-    id: 'programming',
-    name: 'Programming',
-    icon: <Brain className="w-6 h-6" />,
-    description: 'Test your programming knowledge',
+    id: 'mathematics',
+    name: 'Mathematics',
+    icon: <Calculator className="w-6 h-6" />,
+    description: 'Test your mathematical skills',
     questions: [
       {
         id: 1,
-        question: "Which hook is used for side effects in React?",
-        options: ["useState", "useEffect", "useContext", "useReducer"],
+        question: "What is the value of π (pi) to two decimal places?",
+        options: ["3.12", "3.14", "3.16", "3.18"],
         correctAnswer: 1,
       },
       {
         id: 2,
-        question: "What does the Virtual DOM do in React?",
-        options: [
-          "Directly manipulates the browser's DOM",
-          "Creates a copy of the browser's DOM in memory",
-          "Eliminates the need for a DOM altogether",
-          "Slows down rendering for precision",
-        ],
-        correctAnswer: 1,
+        question: "What is the square root of 144?",
+        options: ["10", "11", "12", "13"],
+        correctAnswer: 2,
       },
       {
         id: 3,
-        question: "Which of these is NOT a React Hook?",
-        options: ["useRef", "useFetch", "useContext", "useReducer"],
-        correctAnswer: 1,
-      },
-      {
-        id: 4,
-        question: "How do you update state in React?",
-        options: [
-          "Directly modify the state object",
-          "Using setState or a setter from useState",
-          "By returning a new component",
-          "Using the this.state property",
-        ],
-        correctAnswer: 1,
-      },
-      {
-        id: 5,
-        question: "What is the purpose of keys in React lists?",
-        options: [
-          "To style list items differently",
-          "To help React identify which items have changed, added, or removed",
-          "To provide accessibility features",
-          "To encrypt the list data",
-        ],
+        question: "What is the result of 7 × 8?",
+        options: ["54", "56", "58", "60"],
         correctAnswer: 1,
       },
     ],
   },
   {
-    id: 'movies',
-    name: 'Movies',
-    icon: <Film className="w-6 h-6" />,
-    description: 'Challenge yourself with movie trivia',
+    id: 'science',
+    name: 'Science',
+    icon: <Atom className="w-6 h-6" />,
+    description: 'Explore scientific concepts',
     questions: [
       {
         id: 1,
-        question: "Who directed Inception?",
-        options: ["Christopher Nolan", "Steven Spielberg", "Martin Scorsese", "Quentin Tarantino"],
+        question: "What is the chemical symbol for gold?",
+        options: ["Au", "Ag", "Fe", "Cu"],
         correctAnswer: 0,
       },
       {
         id: 2,
-        question: "What year was The Matrix released?",
-        options: ["1998", "1999", "2000", "2001"],
-        correctAnswer: 1,
+        question: "Which planet is known as the Red Planet?",
+        options: ["Venus", "Jupiter", "Mars", "Saturn"],
+        correctAnswer: 2,
+      },
+      {
+        id: 3,
+        question: "What is the largest organ in the human body?",
+        options: ["Heart", "Brain", "Liver", "Skin"],
+        correctAnswer: 3,
       },
     ],
   },
   {
-    id: 'music',
-    name: 'Music',
-    icon: <Music className="w-6 h-6" />,
-    description: 'Test your music knowledge',
+    id: 'history',
+    name: 'History',
+    icon: <Globe className="w-6 h-6" />,
+    description: 'Journey through historical events',
     questions: [
       {
         id: 1,
-        question: "Who is known as the 'King of Pop'?",
-        options: ["Elvis Presley", "Michael Jackson", "Prince", "Justin Timberlake"],
-        correctAnswer: 1,
+        question: "In which year did World War II end?",
+        options: ["1943", "1944", "1945", "1946"],
+        correctAnswer: 2,
       },
       {
         id: 2,
-        question: "Which band performed 'Bohemian Rhapsody'?",
-        options: ["The Beatles", "Led Zeppelin", "Queen", "Pink Floyd"],
+        question: "Who was the first President of the United States?",
+        options: ["John Adams", "Thomas Jefferson", "Benjamin Franklin", "George Washington"],
+        correctAnswer: 3,
+      },
+      {
+        id: 3,
+        question: "Which ancient civilization built the pyramids?",
+        options: ["Romans", "Greeks", "Egyptians", "Mayans"],
         correctAnswer: 2,
       },
     ],
@@ -100,24 +85,139 @@ const quizGenres: QuizGenre[] = [
   {
     id: 'literature',
     name: 'Literature',
-    icon: <Book className="w-6 h-6" />,
-    description: 'Challenge your literary knowledge',
+    icon: <BookOpen className="w-6 h-6" />,
+    description: 'Test your literary knowledge',
     questions: [
       {
         id: 1,
-        question: "Who wrote '1984'?",
-        options: ["George Orwell", "Aldous Huxley", "Ray Bradbury", "Ernest Hemingway"],
+        question: "Who wrote 'Romeo and Juliet'?",
+        options: ["Charles Dickens", "William Shakespeare", "Jane Austen", "Mark Twain"],
+        correctAnswer: 1,
+      },
+      {
+        id: 2,
+        question: "What is the main theme of 'To Kill a Mockingbird'?",
+        options: ["Love", "Justice", "War", "Nature"],
+        correctAnswer: 1,
+      },
+      {
+        id: 3,
+        question: "Which of these is a poem by Robert Frost?",
+        options: ["The Raven", "The Road Not Taken", "The Waste Land", "Howl"],
+        correctAnswer: 1,
+      },
+    ],
+  },
+  {
+    id: 'language',
+    name: 'Language Arts',
+    icon: <Pencil className="w-6 h-6" />,
+    description: 'Improve your language skills',
+    questions: [
+      {
+        id: 1,
+        question: "What is a synonym for 'happy'?",
+        options: ["Sad", "Joyful", "Angry", "Tired"],
+        correctAnswer: 1,
+      },
+      {
+        id: 2,
+        question: "Which word is an antonym of 'dark'?",
+        options: ["Black", "Night", "Light", "Dim"],
+        correctAnswer: 2,
+      },
+      {
+        id: 3,
+        question: "What type of word is 'quickly'?",
+        options: ["Noun", "Verb", "Adjective", "Adverb"],
+        correctAnswer: 3,
+      },
+    ],
+  },
+  {
+    id: 'chemistry',
+    name: 'Chemistry',
+    icon: <FlaskConical className="w-6 h-6" />,
+    description: 'Master chemical concepts',
+    questions: [
+      {
+        id: 1,
+        question: "What is H2O?",
+        options: ["Carbon Dioxide", "Oxygen", "Water", "Hydrogen"],
+        correctAnswer: 2,
+      },
+      {
+        id: 2,
+        question: "What is the atomic number of Carbon?",
+        options: ["4", "6", "8", "12"],
+        correctAnswer: 1,
+      },
+      {
+        id: 3,
+        question: "Which is a noble gas?",
+        options: ["Helium", "Oxygen", "Hydrogen", "Carbon"],
+        correctAnswer: 0,
+      },
+    ],
+  },
+  {
+    id: 'biology',
+    name: 'Biology',
+    icon: <Brain className="w-6 h-6" />,
+    description: 'Explore life sciences',
+    questions: [
+      {
+        id: 1,
+        question: "What is the powerhouse of the cell?",
+        options: ["Nucleus", "Mitochondria", "Ribosome", "Golgi Body"],
+        correctAnswer: 1,
+      },
+      {
+        id: 2,
+        question: "Which blood type is known as the universal donor?",
+        options: ["A+", "B+", "AB+", "O-"],
+        correctAnswer: 3,
+      },
+      {
+        id: 3,
+        question: "What is the process by which plants make their food?",
+        options: ["Respiration", "Photosynthesis", "Digestion", "Absorption"],
+        correctAnswer: 1,
+      },
+    ],
+  },
+  {
+    id: 'civics',
+    name: 'Civics',
+    icon: <Scale className="w-6 h-6" />,
+    description: 'Learn about government and citizenship',
+    questions: [
+      {
+        id: 1,
+        question: "What are the three branches of government?",
+        options: [
+          "Executive, Legislative, Judicial",
+          "Federal, State, Local",
+          "President, Congress, Senate",
+          "Military, Civilian, Judicial"
+        ],
         correctAnswer: 0,
       },
       {
         id: 2,
-        question: "What's the first book in the Harry Potter series?",
+        question: "What document begins with 'We the People'?",
         options: [
-          "Chamber of Secrets",
-          "Prisoner of Azkaban",
-          "Philosopher's Stone",
-          "Goblet of Fire"
+          "Declaration of Independence",
+          "Bill of Rights",
+          "Constitution",
+          "Emancipation Proclamation"
         ],
+        correctAnswer: 2,
+      },
+      {
+        id: 3,
+        question: "What is the minimum voting age in most countries?",
+        options: ["16", "17", "18", "21"],
         correctAnswer: 2,
       },
     ],
